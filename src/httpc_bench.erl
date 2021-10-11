@@ -9,14 +9,16 @@
 
 -define(CLIENTS, [
     httpc_bench_buoy,
-    httpc_bench_dlhttpc,
+    httpc_bench_ehttpc,
     httpc_bench_hackney,
-    httpc_bench_httpc,
-    httpc_bench_ibrowse,
-    httpc_bench_katipo
+    httpc_bench_httpc
 ]).
--define(CONCURENCIES, [32, 64, 128, 512, 2048, 4096]).
--define(POOL_SIZES, [8, 16, 32, 64, 128, 256]).
+
+% -define(CONCURENCIES, [32, 64, 128, 512, 2048, 4096]).
+% -define(POOL_SIZES, [8, 16, 32, 64, 128, 256]).
+
+-define(CONCURENCIES, [10240]).
+-define(POOL_SIZES, [1024]).
 
 %% public
 run() ->

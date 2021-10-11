@@ -12,12 +12,19 @@
 %% public
 get() ->
     Options = [{pool, httpc_bench}],
-    {ok, _, _, Ref} = hackney:request(get, ?URL, ?HEADERS, <<>>, Options),
-    {ok, _} = hackney:body(Ref),
-    ok.
+    case hackney:request(get, ?URL, ?HEADERS, <<>>, Options) of
+        {ok, _, _, Ref} ->
+            case hackney:body(Ref) of
+                {ok, _} -> ok;
+                {error, Reason} ->
+                    {error, Reason}
+            end;
+        {error, Reason} ->
+            {error, Reason}
+    end.
 
 start(PoolSize) ->
-    ok = hackney:start(),
+    application:ensure_all_started(hackney),
     HackneyOps = [
         {pool_size, PoolSize},
         {timeout, ?TIMEOUT}
@@ -25,4 +32,4 @@ start(PoolSize) ->
     ok = hackney_pool:start_pool(httpc_bench, HackneyOps).
 
 stop() ->
-    ok = hackney:stop().
+    ok = hackney_pool:stop_pool(httpc_bench).
