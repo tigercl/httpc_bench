@@ -5,20 +5,23 @@
     run/0
 ]).
 
--define(N, 2048000).
+-define(N, 50000).
 
 -define(CLIENTS, [
-    httpc_bench_buoy,
-    httpc_bench_ehttpc,
-    httpc_bench_hackney,
-    httpc_bench_httpc
+    % httpc_bench_buoy,
+    httpc_bench_ehttpc
+    % httpc_bench_hackney,
+    % httpc_bench_httpc
 ]).
 
 % -define(CONCURENCIES, [32, 64, 128, 512, 2048, 4096]).
 % -define(POOL_SIZES, [8, 16, 32, 64, 128, 256]).
 
--define(CONCURENCIES, [10240]).
--define(POOL_SIZES, [1024]).
+-define(CONCURENCIES, [20480]).
+-define(POOL_SIZES, [16]).
+
+% -define(CONCURENCIES, [10240]).
+% -define(POOL_SIZES, [1024]).
 
 %% public
 run() ->
