@@ -5,7 +5,7 @@
     run/0
 ]).
 
--define(N, 50000).
+-define(N, 10240).
 
 -define(CLIENTS, [
     % httpc_bench_buoy,
@@ -29,12 +29,16 @@ run() ->
     io:format("Running benchmark...~n~n" ++
         "Client  PoolSize  Concurency  Requests/s  Error % Success Totol Time(s)~n" ++
         [$= || _ <- lists:seq(1, 71)] ++ "~n", []),
+    case lists:any(fun(C) -> ?N < C end, ?CONCURENCIES) of
+        true -> error(bad_iteration);
+        false -> ok
+    end,
     run_client(?CLIENTS, ?POOL_SIZES, ?CONCURENCIES, ?N).
 
 %% private
 lookup(Key, List) ->
     case lists:keyfind(Key, 1, List) of
-        false -> undefined;
+        false -> error({bad_lookup_key, Key});
         {_, Value} -> Value
     end.
 

@@ -26,7 +26,7 @@ start(PoolSize) ->
                 {pool_size, PoolSize},
                 {pool_type, random},
                 {connect_timeout, 5000},
-                {retry, 5},
+                {retry, 0},
                 {retry_timeout, 1000}
                 ],
     {ok, _} = ehttpc_sup:start_pool(httpc_bench, PoolOpts).

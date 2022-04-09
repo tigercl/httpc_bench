@@ -5,5 +5,5 @@
 -define(PIPELINING, 1024).
 -define(PATH, <<"/">>).
 -define(PORT, 8080).
--define(TIMEOUT, 12000).
+-define(TIMEOUT, 300_000).
 -define(URL, <<"http://127.0.0.1:8080/">>).
