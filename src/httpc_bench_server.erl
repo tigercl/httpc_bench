@@ -76,7 +76,8 @@ loop(Socket, Buffer) ->
                   "Date: Tue, 07 Mar 2017 01:10:09 GMT\r\n",
                   "Content-Length: 12\r\n\r\n",
                   "httpc_bench!">> || _ <- lists:seq(1, N)],
-            timer:sleep(rand:uniform(300) + 1),
+            timer:sleep(10),
+            % timer:sleep(rand:uniform(300) + 1),
             case gen_tcp:send(Socket, Responses) of
                 ok ->
                     loop(Socket, Buffer2);

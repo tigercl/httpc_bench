@@ -14,11 +14,11 @@
     % httpc_bench_httpc
 ]).
 
-% -define(CONCURENCIES, [32, 64, 128, 512, 2048, 4096]).
-% -define(POOL_SIZES, [8, 16, 32, 64, 128, 256]).
+-define(CONCURENCIES, [10240]).
+-define(POOL_SIZES, [1]).
 
--define(CONCURENCIES, [20480]).
--define(POOL_SIZES, [16]).
+% -define(CONCURENCIES, [20480]).
+% -define(POOL_SIZES, [16]).
 
 % -define(CONCURENCIES, [10240]).
 % -define(POOL_SIZES, [1024]).
@@ -27,8 +27,8 @@
 run() ->
     error_logger:tty(false),
     io:format("Running benchmark...~n~n" ++
-        "Client  PoolSize  Concurency  Requests/s  Error %~n" ++
-        [$= || _ <- lists:seq(1, 49)] ++ "~n", []),
+        "Client  PoolSize  Concurency  Requests/s  Error % Success Totol Time(s)~n" ++
+        [$= || _ <- lists:seq(1, 71)] ++ "~n", []),
     run_client(?CLIENTS, ?POOL_SIZES, ?CONCURENCIES, ?N).
 
 %% private
@@ -69,7 +69,7 @@ run_concurency(Client, PoolSize, [Concurency | T], N) ->
     ]),
     Qps = lookup(success, Results) / (lookup(total_time, Results) / 1000000),
     Errors = lookup(errors, Results) / lookup(iterations, Results) * 100,
-    io:format("~-8s ~7B ~11B ~11B ~8.1f~n",
-        [Client2, PoolSize, Concurency, trunc(Qps), Errors]),
+    io:format("~-8s ~7B ~11B ~11B ~8.1f ~8B ~12.2f~n",
+        [Client2, PoolSize, Concurency, trunc(Qps), Errors, lookup(success, Results), (lookup(total_time, Results) / 1000000)]),
     Client:stop(),
     run_concurency(Client, PoolSize, T, N).
