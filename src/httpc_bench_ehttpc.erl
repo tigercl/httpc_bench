@@ -22,11 +22,11 @@ start(PoolSize) ->
     application:ensure_all_started(ehttpc),
     PoolOpts = [{host, "127.0.0.1"},
                 {port, 8080},
-                {enable_pipelining, true},
+                {enable_pipelining, false},
                 {pool_size, PoolSize},
                 {pool_type, random},
                 {connect_timeout, 5000},
-                {retry, 5},
+                {retry, 0},
                 {retry_timeout, 1000}
                 ],
     {ok, _} = ehttpc_sup:start_pool(httpc_bench, PoolOpts).

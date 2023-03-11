@@ -13,10 +13,11 @@
 start() ->
     case get(?MODULE) of
         undefined ->
-            io:format("Server started...~n", []),
+            Sleep = sleep(),
+            io:format("HTTP Server started on port ~p, sleep=~p...~n", [?PORT, Sleep]),
             {ok, LSocket} = listen(),
             put(?MODULE, LSocket),
-            spawn(fun () -> accept(LSocket) end),
+            spawn(fun () -> accept(LSocket, Sleep) end),
             ok;
         _LSocket ->
             {error, already_started}
@@ -33,14 +34,25 @@ stop() ->
     end.
 
 %% private
-accept(LSocket) ->
+accept(LSocket, Sleep) ->
     case gen_tcp:accept(LSocket) of
         {ok, Socket} ->
-            spawn(fun() -> loop(Socket, <<>>) end),
-            accept(LSocket);
+            spawn_link(
+                fun() ->
+                    io:format(user, "started one server process ~p, sleep=~p\n", [Socket, Sleep]),
+                    loop(Socket, Sleep, <<>>)
+                end),
+            accept(LSocket, Sleep);
         {error, _Reason} ->
             ok
     end.
+
+sleep() ->
+   case os:getenv("SLEEP_PER_REQ") of
+       false -> 10;
+       "" -> 10;
+       N -> list_to_integer(N)
+   end.
 
 count_requests([<<>>], N) ->
     {N, <<>>};
@@ -61,10 +73,13 @@ listen() ->
     end),
     receive
         {ok, LSocket} ->
-            {ok, LSocket}
+            {ok, LSocket};
+        Other ->
+            io:format(user, "unexpected listen result: ~p\n", [Other]),
+            exit(kill)
     end.
 
-loop(Socket, Buffer) ->
+loop(Socket, Sleep, Buffer) ->
     case gen_tcp:recv(Socket, 0) of
         {ok, Data} ->
             Split = binary:split(<<Buffer/binary, Data/binary>>,
@@ -76,12 +91,16 @@ loop(Socket, Buffer) ->
                   "Date: Tue, 07 Mar 2017 01:10:09 GMT\r\n",
                   "Content-Length: 12\r\n\r\n",
                   "httpc_bench!">> || _ <- lists:seq(1, N)],
-            case gen_tcp:send(Socket, Responses) of
-                ok ->
-                    loop(Socket, Buffer2);
-                {error, _Reason} ->
-                    ok
-            end;
-        {error, _Reason} ->
-            ok
+            lists:foreach(
+                fun(R) ->
+                        case gen_tcp:send(Socket, R) of
+                            ok -> ok;
+                            {error, _} -> exit(normal)
+                        end,
+                        timer:sleep(Sleep)
+                end, Responses),
+            loop(Socket, Sleep, Buffer2);
+        {error, Reason} ->
+            io:format(user, "stopped one server process ~p: ~0p\n", [Socket, Reason]),
+            exit(normal)
     end.
